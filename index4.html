@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lịch Học Spaced Repetition - 70 Bài</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .controls {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .control-left {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .control-right {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            color: #495057;
+            white-space: nowrap;
+        }
+
+        .control-group input, .control-group select {
+            padding: 8px 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .control-group input:focus, .control-group select:focus {
+            outline: none;
+            border-color: #4facfe;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.2s;
+            white-space: nowrap;
+            font-size: 14px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn.export {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+
+        .btn.export:hover {
+            background: linear-gradient(135deg, #20c997 0%, #28a745 100%);
+        }
+
+        .info-panel {
+            background: linear-gradient(135deg, #ffeaa7, #fab1a0);
+            padding: 20px;
+            margin: 20px 30px;
+            border-radius: 12px;
+        }
+
+        .info-panel h3 {
+            margin-bottom: 15px;
+            color: #2d3436;
+        }
+
+        .repetition-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .repetition-item {
+            background: rgba(255,255,255,0.7);
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .repetition-item strong {
+            color: #2d3436;
+        }
+
+        .schedule-container {
+            padding: 30px;
+            overflow-x: auto;
+        }
+
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .schedule-table th {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: white;
+            padding: 15px 10px;
+            text-align: center;
+            font-weight: 600;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .schedule-table td {
+            padding: 12px 10px;
+            text-align: center;
+            border-bottom: 1px solid #e9ecef;
+            transition: background-color 0.2s;
+        }
+
+        .schedule-table tr:hover td {
+            background-color: #f8f9fa;
+        }
+
+        .lesson-cell {
+            font-weight: 600;
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            color: #155724;
+        }
+
+        .review-cell {
+            background: linear-gradient(135deg, #cce7ff, #b8daff);
+            color: #004085;
+            font-size: 13px;
+        }
+
+        .review-1 { border-left: 4px solid #ff6b6b; }
+        .review-2 { border-left: 4px solid #feca57; }
+        .review-3 { border-left: 4px solid #48dbfb; }
+        .review-4 { border-left: 4px solid #ff9ff3; }
+        .review-5 { border-left: 4px solid #54a0ff; }
+        .review-6 { border-left: 4px solid #5f27cd; }
+
+        .chapter-info {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        .summary {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .summary h3 {
+            color: #2d3436;
+            margin-bottom: 15px;
+        }
+
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #2d3436;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #636e72;
+            margin-top: 5px;
+        }
+
+        .export-info {
+            background: #e7f3ff;
+            border: 1px solid #b3d7ff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            font-size: 14px;
+            color: #0056b3;
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .control-left, .control-right {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .control-group {
+                flex: 1;
+                justify-content: space-between;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .schedule-table th,
+            .schedule-table td {
+                padding: 8px 5px;
+                font-size: 12px;
+            }
+
+            .repetition-info {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .daily-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .daily-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .daily-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            font-weight: bold;
+            font-size: 1.2em;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .daily-content {
+            padding: 20px;
+        }
+
+        .activity-group {
+            margin-bottom: 15px;
+        }
+
+        .activity-type {
+            font-weight: bold;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .activity-type.new-lesson {
+            color: #28a745;
+        }
+
+        .activity-type.review {
+            color: #007bff;
+        }
+
+        .activity-type::before {
+            content: '';
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .activity-type.new-lesson::before {
+            background: #28a745;
+        }
+
+        .activity-type.review::before {
+            background: #007bff;
+        }
+
+        .activity-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .activity-item {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 20px;
+            padding: 8px 15px;
+            font-size: 0.9em;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .activity-item.new-lesson {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border-color: #28a745;
+            color: #155724;
+        }
+
+        .activity-item.review {
+            background: linear-gradient(135deg, #cce7ff, #b8daff);
+            border-color: #007bff;
+            color: #004085;
+        }
+
+        .activity-item:hover {
+            transform: scale(1.05);
+        }
+
+        .review-detail {
+            font-size: 0.8em;
+            opacity: 0.8;
+            margin-top: 2px;
+        }
+
+        .no-activities {
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧠 Spaced Repetition Schedule</h1>
+            <p>Lịch học và ôn tập 70 bài theo phương pháp khoa học</p>
+        </div>
+
+        <div class="controls">
+            <div class="control-left">
+                <div class="control-group">
+                    <label for="startDate">📅 Ngày bắt đầu:</label>
+                    <input type="date" id="startDate">
+                </div>
+                <div class="control-group">
+                    <label for="chapterSelect">📚 Chặng học:</label>
+                    <select id="chapterSelect">
+                        <option value="all">Tất cả 7 chặng</option>
+                        <option value="1">Chặng 1 (Bài 1-10)</option>
+                        <option value="2">Chặng 2 (Bài 11-20)</option>
+                        <option value="3">Chặng 3 (Bài 21-30)</option>
+                        <option value="4">Chặng 4 (Bài 31-40)</option>
+                        <option value="5">Chặng 5 (Bài 41-50)</option>
+                        <option value="6">Chặng 6 (Bài 51-60)</option>
+                        <option value="7">Chặng 7 (Bài 61-70)</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="viewMode">👁️ Hiển thị:</label>
+                    <select id="viewMode" onchange="switchView()">
+                        <option value="lesson">Theo bài học</option>
+                        <option value="daily">Theo ngày</option>
+                    </select>
+                </div>
+                <button class="btn" onclick="generateSchedule()">🔄 Tạo lịch</button>
+            </div>
+            <div class="control-right">
+                <button class="btn export" onclick="exportToCSV()">📊 Xuất CSV</button>
+                <button class="btn export" onclick="exportToMarkdown()">📝 Xuất Markdown</button>
+            </div>
+        </div>
+
+        <div class="info-panel">
+            <h3>🔄 Quy trình Spaced Repetition</h3>
+            <div class="repetition-info">
+                <div class="repetition-item">
+                    <strong>Lần 1 (+1 ngày):</strong> Ôn kỹ lại, kiểm tra bản thân
+                </div>
+                <div class="repetition-item">
+                    <strong>Lần 2 (+3 ngày):</strong> Tóm tắt không nhìn tài liệu
+                </div>
+                <div class="repetition-item">
+                    <strong>Lần 3 (+7 ngày):</strong> Làm bài tập hoặc dạy lại
+                </div>
+                <div class="repetition-item">
+                    <strong>Lần 4 (+14 ngày):</strong> Tự kiểm tra ngẫu nhiên
+                </div>
+                <div class="repetition-item">
+                    <strong>Lần 5 (+30 ngày):</strong> Nhìn tiêu đề – nhớ nội dung
+                </div>
+                <div class="repetition-item">
+                    <strong>Lần 6 (+90 ngày):</strong> Lướt nhanh – kiểm tra trí nhớ
+                </div>
+            </div>
+            <div class="export-info">
+                💡 <strong>Gợi ý:</strong> Xuất CSV để import vào Excel/Google Sheets, hoặc xuất Markdown để sử dụng trong Obsidian vault của bạn.
+            </div>
+        </div>
+
+        <div id="summary" class="summary" style="display: none;">
+            <!-- Summary will be generated here -->
+        </div>
+
+        <div class="schedule-container">
+            <div id="schedule" class="loading">
+                📚 Chọn thông tin và nhấn "Tạo lịch" để bắt đầu...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Set default date to today
+        document.getElementById('startDate').valueAsDate = new Date();
+
+        let currentScheduleData = [];
+        let currentDailyData = [];
+
+        function generateSchedule() {
+            const startDateInput = document.getElementById('startDate').value;
+            const chapterSelect = document.getElementById('chapterSelect').value;
+            
+            if (!startDateInput) {
+                alert('Vui lòng chọn ngày bắt đầu!');
+                return;
+            }
+            
+            const startDate = new Date(startDateInput);
+            
+            // Determine lessons range
+            let startLesson, endLesson;
+            if (chapterSelect === 'all') {
+                startLesson = 1;
+                endLesson = 70;
+            } else {
+                const chapter = parseInt(chapterSelect);
+                startLesson = (chapter - 1) * 10 + 1;
+                endLesson = chapter * 10;
+            }
+            
+            // Spaced repetition intervals
+            const intervals = [1, 3, 7, 14, 30, 90];
+            const reviewTasks = [
+                'Ôn kỹ lại, kiểm tra bản thân',
+                'Tóm tắt không nhìn tài liệu', 
+                'Làm bài tập hoặc dạy lại',
+                'Tự kiểm tra ngẫu nhiên',
+                'Nhìn tiêu đề – nhớ nội dung',
+                'Lướt nhanh – kiểm tra trí nhớ'
+            ];
+            
+            // Generate schedule data
+            currentScheduleData = [];
+            
+            for (let lesson = startLesson; lesson <= endLesson; lesson++) {
+                const lessonDay = lesson - startLesson; // Day when lesson is first learned
+                const learningDate = new Date(startDate);
+                learningDate.setDate(startDate.getDate() + lessonDay);
+                
+                const scheduleItem = {
+                    lesson: lesson,
+                    chapter: Math.ceil(lesson / 10),
+                    learningDate: formatDate(learningDate),
+                    learningDay: lessonDay,
+                    reviews: []
+                };
+                
+                // Generate review dates
+                intervals.forEach((interval, index) => {
+                    const reviewDate = new Date(learningDate);
+                    reviewDate.setDate(learningDate.getDate() + interval);
+                    const reviewDay = lessonDay + interval;
+                    
+                    scheduleItem.reviews.push({
+                        reviewNumber: index + 1,
+                        date: formatDate(reviewDate),
+                        day: reviewDay,
+                        task: reviewTasks[index],
+                        interval: interval
+                    });
+                });
+                
+                currentScheduleData.push(scheduleItem);
+            }
+            
+            // Generate daily view data
+            generateDailyData();
+            
+            switchView();
+            displaySummary();
+        }
+        
+        function generateDailyData() {
+            currentDailyData = [];
+            const dailyActivities = {};
+            
+            // Process new lessons
+            currentScheduleData.forEach(item => {
+                const day = item.learningDay;
+                if (!dailyActivities[day]) {
+                    dailyActivities[day] = {
+                        day: day,
+                        date: item.learningDate,
+                        newLessons: [],
+                        reviews: []
+                    };
+                }
+                dailyActivities[day].newLessons.push({
+                    lesson: item.lesson,
+                    chapter: item.chapter
+                });
+            });
+            
+            // Process reviews
+            currentScheduleData.forEach(item => {
+                item.reviews.forEach(review => {
+                    const day = review.day;
+                    if (!dailyActivities[day]) {
+                        dailyActivities[day] = {
+                            day: day,
+                            date: review.date,
+                            newLessons: [],
+                            reviews: []
+                        };
+                    }
+                    dailyActivities[day].reviews.push({
+                        lesson: item.lesson,
+                        chapter: item.chapter,
+                        reviewNumber: review.reviewNumber,
+                        task: review.task
+                    });
+                });
+            });
+            
+            // Convert to sorted array
+            currentDailyData = Object.values(dailyActivities).sort((a, b) => a.day - b.day);
+        }
+        
+        function switchView() {
+            const viewMode = document.getElementById('viewMode').value;
+            
+            if (viewMode === 'lesson') {
+                displaySchedule();
+            } else {
+                displayDailyView();
+            }
+        }
+        
+        function displayDailyView() {
+            if (currentDailyData.length === 0) {
+                document.getElementById('schedule').innerHTML = '<div class="loading">📚 Chọn thông tin và nhấn "Tạo lịch" để bắt đầu...</div>';
+                return;
+            }
+            
+            let html = '<div class="daily-schedule">';
+            
+            currentDailyData.forEach(dayData => {
+                const hasActivities = dayData.newLessons.length > 0 || dayData.reviews.length > 0;
+                
+                if (hasActivities) {
+                    const totalActivities = dayData.newLessons.length + dayData.reviews.length;
+                    
+                    html += `
+                        <div class="daily-card">
+                            <div class="daily-header">
+                                <div>
+                                    <strong>📅 ${dayData.date}</strong>
+                                    <small style="opacity: 0.8; margin-left: 10px;">Ngày ${dayData.day}</small>
+                                </div>
+                                <div class="activity-count">
+                                    <span style="background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 15px; font-size: 0.9em;">
+                                        ${totalActivities} hoạt động
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="daily-content">
+                    `;
+                    
+                    // New lessons
+                    if (dayData.newLessons.length > 0) {
+                        html += `
+                            <div class="activity-group">
+                                <div class="activity-type new-lesson">🆕 Học mới (${dayData.newLessons.length} bài)</div>
+                                <div class="activity-items">
+                        `;
+                        dayData.newLessons.forEach(lesson => {
+                            html += `
+                                <div class="activity-item new-lesson">
+                                    <strong>Bài ${lesson.lesson}</strong>
+                                    <div class="review-detail">Chặng ${lesson.chapter}</div>
+                                </div>
+                            `;
+                        });
+                        html += `
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    // Reviews
+                    if (dayData.reviews.length > 0) {
+                        // Group reviews by review number
+                        const reviewGroups = {};
+                        dayData.reviews.forEach(review => {
+                            if (!reviewGroups[review.reviewNumber]) {
+                                reviewGroups[review.reviewNumber] = {
+                                    task: review.task,
+                                    lessons: []
+                                };
+                            }
+                            reviewGroups[review.reviewNumber].lessons.push(review);
+                        });
+                        
+                        Object.keys(reviewGroups).forEach(reviewNum => {
+                            const group = reviewGroups[reviewNum];
+                            html += `
+                                <div class="activity-group">
+                                    <div class="activity-type review">🔄 Ôn lần ${reviewNum} (${group.lessons.length} bài)</div>
+                                    <div style="font-size: 0.9em; color: #6c757d; margin-bottom: 8px;">${group.task}</div>
+                                    <div class="activity-items">
+                            `;
+                            group.lessons.forEach(lesson => {
+                                html += `
+                                    <div class="activity-item review">
+                                        <strong>Bài ${lesson.lesson}</strong>
+                                        <div class="review-detail">Chặng ${lesson.chapter}</div>
+                                    </div>
+                                `;
+                            });
+                            html += `
+                                    </div>
+                                </div>
+                            `;
+                        });
+                    }
+                    
+                    html += `
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+            
+            html += '</div>';
+            
+            if (currentDailyData.filter(d => d.newLessons.length > 0 || d.reviews.length > 0).length === 0) {
+                html = '<div class="loading">📚 Không có hoạt động nào trong khoảng thời gian này...</div>';
+            }
+            
+            document.getElementById('schedule').innerHTML = html;
+        }
+        
+        function formatDate(date) {
+            return date.toLocaleDateString('vi-VN', {
+                weekday: 'short',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            });
+        }
+        
+        function displaySchedule() {
+            let html = `
+                <table class="schedule-table">
+                    <thead>
+                        <tr>
+                            <th>Bài</th>
+                            <th>Chặng</th>
+                            <th>Học mới</th>
+                            <th>Ôn lần 1<br><small>(+1 ngày)</small></th>
+                            <th>Ôn lần 2<br><small>(+3 ngày)</small></th>
+                            <th>Ôn lần 3<br><small>(+7 ngày)</small></th>
+                            <th>Ôn lần 4<br><small>(+14 ngày)</small></th>
+                            <th>Ôn lần 5<br><small>(+30 ngày)</small></th>
+                            <th>Ôn lần 6<br><small>(+90 ngày)</small></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            currentScheduleData.forEach(item => {
+                html += `
+                    <tr>
+                        <td class="lesson-cell">
+                            <strong>Bài ${item.lesson}</strong>
+                        </td>
+                        <td>
+                            <strong>Chặng ${item.chapter}</strong>
+                        </td>
+                        <td class="lesson-cell">
+                            <strong>${item.learningDate}</strong>
+                            <div class="chapter-info">Ngày ${item.learningDay}</div>
+                        </td>
+                `;
+                
+                item.reviews.forEach((review, index) => {
+                    html += `
+                        <td class="review-cell review-${review.reviewNumber}">
+                            <strong>${review.date}</strong>
+                            <div class="chapter-info">Ngày ${review.day}</div>
+                            <div class="chapter-info">${review.task}</div>
+                        </td>
+                    `;
+                });
+                
+                html += `</tr>`;
+            });
+            
+            html += `
+                    </tbody>
+                </table>
+            `;
+            
+            document.getElementById('schedule').innerHTML = html;
+        }
+        
+        function displaySummary() {
+            const totalLessons = currentScheduleData.length;
+            const totalReviews = totalLessons * 6;
+            const chapters = [...new Set(currentScheduleData.map(item => item.chapter))];
+            const lastReviewDay = Math.max(...currentScheduleData.map(item => 
+                Math.max(...item.reviews.map(review => review.day))
+            ));
+            
+            const summaryHtml = `
+                <h3>📊 Thống kê lịch học</h3>
+                <div class="summary-stats">
+                    <div class="stat-item">
+                        <div class="stat-number">${totalLessons}</div>
+                        <div class="stat-label">Tổng số bài</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">${chapters.length}</div>
+                        <div class="stat-label">Số chặng</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">${totalReviews}</div>
+                        <div class="stat-label">Tổng lần ôn</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">${lastReviewDay + 1}</div>
+                        <div class="stat-label">Tổng số ngày</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">6</div>
+                        <div class="stat-label">Lần ôn/bài</div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('summary').innerHTML = summaryHtml;
+            document.getElementById('summary').style.display = 'block';
+        }
+        
+        function exportToCSV() {
+            if (currentScheduleData.length === 0) {
+                alert('Vui lòng tạo lịch trước khi xuất file!');
+                return;
+            }
+            
+            const viewMode = document.getElementById('viewMode').value;
+            
+            if (viewMode === 'lesson') {
+                exportLessonViewCSV();
+            } else {
+                exportDailyViewCSV();
+            }
+        }
+        
+        function exportLessonViewCSV() {
+            let csvContent = 'Bài,Chặng,Học mới,Ngày học,Ôn lần 1,Ngày ôn 1,Ôn lần 2,Ngày ôn 2,Ôn lần 3,Ngày ôn 3,Ôn lần 4,Ngày ôn 4,Ôn lần 5,Ngày ôn 5,Ôn lần 6,Ngày ôn 6\n';
+            
+            currentScheduleData.forEach(item => {
+                let row = `Bài ${item.lesson},Chặng ${item.chapter},"${item.learningDate}",Ngày ${item.learningDay}`;
+                
+                item.reviews.forEach(review => {
+                    row += `,"${review.task}","${review.date}"`;
+                });
+                
+                csvContent += row + '\n';
+            });
+            
+            downloadFile(csvContent, 'lich-hoc-theo-bai.csv', 'text/csv');
+        }
+        
+        function exportDailyViewCSV() {
+            let csvContent = 'Ngày,Ngày thứ,Học mới,Ôn tập,Tổng hoạt động,Chi tiết\n';
+            
+            currentDailyData.forEach(dayData => {
+                const hasActivities = dayData.newLessons.length > 0 || dayData.reviews.length > 0;
+                if (hasActivities) {
+                    const newLessonsList = dayData.newLessons.map(l => `Bài ${l.lesson}`).join('; ');
+                    const reviewsList = dayData.reviews.map(r => `Bài ${r.lesson} (Ôn lần ${r.reviewNumber})`).join('; ');
+                    const totalActivities = dayData.newLessons.length + dayData.reviews.length;
+                    
+                    let details = [];
+                    if (newLessonsList) details.push(`Học mới: ${newLessonsList}`);
+                    if (reviewsList) details.push(`Ôn tập: ${reviewsList}`);
+                    
+                    csvContent += `"${dayData.date}",Ngày ${dayData.day},${dayData.newLessons.length},${dayData.reviews.length},${totalActivities},"${details.join(' | ')}"\n`;
+                }
+            });
+            
+            downloadFile(csvContent, 'lich-hoc-theo-ngay.csv', 'text/csv');
+        }
+        
+        function exportToMarkdown() {
+            if (currentScheduleData.length === 0) {
+                alert('Vui lòng tạo lịch trước khi xuất file!');
+                return;
+            }
+            
+            const viewMode = document.getElementById('viewMode').value;
+            
+            if (viewMode === 'lesson') {
+                exportLessonViewMarkdown();
+            } else {
+                exportDailyViewMarkdown();
+            }
+        }
+        
+        function exportLessonViewMarkdown() {
+            let mdContent = '# 🧠 Lịch học Spaced Repetition - Theo Bài\n\n';
+            mdContent += '## 📋 Quy trình ôn tập\n\n';
+            mdContent += '- **Lần 1 (+1 ngày):** Ôn kỹ lại, kiểm tra bản thân\n';
+            mdContent += '- **Lần 2 (+3 ngày):** Tóm tắt không nhìn tài liệu\n';
+            mdContent += '- **Lần 3 (+7 ngày):** Làm bài tập hoặc dạy lại\n';
+            mdContent += '- **Lần 4 (+14 ngày):** Tự kiểm tra ngẫu nhiên\n';
+            mdContent += '- **Lần 5 (+30 ngày):** Nhìn tiêu đề – nhớ nội dung\n';
+            mdContent += '- **Lần 6 (+90 ngày):** Lướt nhanh – kiểm tra trí nhớ\n\n';
+            
+            mdContent += '## 📅 Lịch chi tiết\n\n';
+            mdContent += '| Bài | Chặng | Học mới | Ôn lần 1 | Ôn lần 2 | Ôn lần 3 | Ôn lần 4 | Ôn lần 5 | Ôn lần 6 |\n';
+            mdContent += '|-----|-------|---------|----------|----------|----------|----------|----------|----------|\n';
+            
+            currentScheduleData.forEach(item => {
+                let row = `| **Bài ${item.lesson}** | Chặng ${item.chapter} | ${item.learningDate}<br>*(Ngày ${item.learningDay})* |`;
+                
+                item.reviews.forEach(review => {
+                    row += ` ${review.date}<br>*(Ngày ${review.day})* |`;
+                });
+                
+                mdContent += row + '\n';
+            });
+            
+            mdContent += '\n## 📊 Thống kê\n\n';
+            const totalLessons = currentScheduleData.length;
+            const totalReviews = totalLessons * 6;
+            const chapters = [...new Set(currentScheduleData.map(item => item.chapter))];
+            
+            mdContent += `- **Tổng số bài:** ${totalLessons}\n`;
+            mdContent += `- **Số chặng:** ${chapters.length}\n`;
+            mdContent += `- **Tổng lần ôn tập:** ${totalReviews}\n`;
+            mdContent += `- **Lần ôn tập mỗi bài:** 6\n\n`;
+            
+            mdContent += '---\n';
+            mdContent += '*Tạo bởi Spaced Repetition Schedule Generator*\n';
+            
+            downloadFile(mdContent, 'lich-hoc-theo-bai.md', 'text/markdown');
+        }
+        
+        function exportDailyViewMarkdown() {
+            let mdContent = '# 🧠 Lịch học Spaced Repetition - Theo Ngày\n\n';
+            mdContent += '## 📋 Quy trình ôn tập\n\n';
+            mdContent += '- **Lần 1 (+1 ngày):** Ôn kỹ lại, kiểm tra bản thân\n';
+            mdContent += '- **Lần 2 (+3 ngày):** Tóm tắt không nhìn tài liệu\n';
+            mdContent += '- **Lần 3 (+7 ngày):** Làm bài tập hoặc dạy lại\n';
+            mdContent += '- **Lần 4 (+14 ngày):** Tự kiểm tra ngẫu nhiên\n';
+            mdContent += '- **Lần 5 (+30 ngày):** Nhìn tiêu đề – nhớ nội dung\n';
+            mdContent += '- **Lần 6 (+90 ngày):** Lướt nhanh – kiểm tra trí nhớ\n\n';
+            
+            mdContent += '## 📅 Lịch hàng ngày\n\n';
+            
+            currentDailyData.forEach(dayData => {
+                const hasActivities = dayData.newLessons.length > 0 || dayData.reviews.length > 0;
+                if (hasActivities) {
+                    mdContent += `### 📅 ${dayData.date} (Ngày ${dayData.day})\n\n`;
+                    
+                    if (dayData.newLessons.length > 0) {
+                        mdContent += `#### 🆕 Học mới (${dayData.newLessons.length} bài)\n`;
+                        dayData.newLessons.forEach(lesson => {
+                            mdContent += `- **Bài ${lesson.lesson}** - Chặng ${lesson.chapter}\n`;
+                        });
+                        mdContent += '\n';
+                    }
+                    
+                    if (dayData.reviews.length > 0) {
+                        // Group reviews by review number
+                        const reviewGroups = {};
+                        dayData.reviews.forEach(review => {
+                            if (!reviewGroups[review.reviewNumber]) {
+                                reviewGroups[review.reviewNumber] = {
+                                    task: review.task,
+                                    lessons: []
+                                };
+                            }
+                            reviewGroups[review.reviewNumber].lessons.push(review);
+                        });
+                        
+                        Object.keys(reviewGroups).forEach(reviewNum => {
+                            const group = reviewGroups[reviewNum];
+                            mdContent += `#### 🔄 Ôn lần ${reviewNum} (${group.lessons.length} bài)\n`;
+                            mdContent += `*${group.task}*\n\n`;
+                            group.lessons.forEach(lesson => {
+                                mdContent += `- **Bài ${lesson.lesson}** - Chặng ${lesson.chapter}\n`;
+                            });
+                            mdContent += '\n';
+                        });
+                    }
+                    
+                    mdContent += '---\n\n';
+                }
+            });
+            
+            mdContent += '## 📊 Thống kê\n\n';
+            const totalLessons = currentScheduleData.length;
+            const totalReviews = totalLessons * 6;
+            const chapters = [...new Set(currentScheduleData.map(item => item.chapter))];
+            const activeDays = currentDailyData.filter(d => d.newLessons.length > 0 || d.reviews.length > 0).length;
+            
+            mdContent += `- **Tổng số bài:** ${totalLessons}\n`;
+            mdContent += `- **Số chặng:** ${chapters.length}\n`;
+            mdContent += `- **Tổng lần ôn tập:** ${totalReviews}\n`;
+            mdContent += `- **Số ngày có hoạt động:** ${activeDays}\n`;
+            mdContent += `- **Lần ôn tập mỗi bài:** 6\n\n`;
+            
+            mdContent += '---\n';
+            mdContent += '*Tạo bởi Spaced Repetition Schedule Generator*\n';
+            
+            downloadFile(mdContent, 'lich-hoc-theo-ngay.md', 'text/markdown');
+        }
+        
+        function downloadFile(content, filename, contentType) {
+            const blob = new Blob([content], { type: contentType });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+        
+    </script>
+</body>
+</html>
